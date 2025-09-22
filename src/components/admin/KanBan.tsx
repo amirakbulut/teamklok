@@ -125,7 +125,7 @@ function OrderDetailsDialog({ order, isOpen, onClose, onUpdateOrder }: OrderDeta
                 <Badge
                   variant={
                     order.orderStatus === 'delivered'
-                      ? 'primary'
+                      ? 'default'
                       : order.orderStatus === 'cancelled'
                         ? 'destructive'
                         : order.orderStatus === 'kitchen'
@@ -366,9 +366,9 @@ function OrderCard({ order, asHandle, onOrderClick, ...props }: OrderCardProps) 
           <Badge
             variant={
               order.paymentStatus === 'paid'
-                ? 'success'
+                ? 'default'
                 : order.paymentStatus === 'processing'
-                  ? 'warning'
+                  ? 'secondary'
                   : 'destructive'
             }
             className="text-xs"
