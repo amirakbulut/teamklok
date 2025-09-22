@@ -169,7 +169,7 @@ export const CartDrawer = ({
                               return (
                                 <div key={selection.questionId}>
                                   <div className="flex items-start gap-1.5">
-                                    {/* <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" /> */}
+                                    {/* <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400 mt-0.5 shrink-0" /> */}
                                     <div className="flex-1">
                                       <div className="space-y-0.5">
                                         {selection.answer.map((answer, answerIndex) => (
@@ -217,7 +217,7 @@ export const CartDrawer = ({
                       {item.customWishes && (
                         <div className="mb-2 px-3 py-2 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/30 rounded-md">
                           <div className="flex items-start gap-1.5">
-                            {/* <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" /> */}
+                            {/* <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" /> */}
                             <div>
                               <p className="text-sm font-medium text-amber-800 dark:text-amber-200 mb-0.5">
                                 Extra wensen

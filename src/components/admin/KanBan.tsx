@@ -88,7 +88,7 @@ function OrderDetailsDialog({ order, isOpen, onClose, onUpdateOrder }: OrderDeta
   return (
     <Drawer open={isOpen} onOpenChange={onClose} direction="right">
       <DrawerContent className="h-full w-[420px] ml-auto border-l shadow-2xl">
-        <DrawerHeader className="pb-4 border-b bg-gradient-to-r from-background to-muted/20">
+        <DrawerHeader className="pb-4 border-b bg-linear-to-r from-background to-muted/20">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-primary/10 rounded-lg">
@@ -116,7 +116,7 @@ function OrderDetailsDialog({ order, isOpen, onClose, onUpdateOrder }: OrderDeta
         <div className="flex-1 overflow-y-auto">
           <div className="p-6 space-y-6">
             {/* Status */}
-            <div className="bg-gradient-to-r from-primary/5 to-primary/10 border border-primary/20 rounded-xl p-4">
+            <div className="bg-linear-to-r from-primary/5 to-primary/10 border border-primary/20 rounded-xl p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
@@ -238,7 +238,7 @@ function OrderDetailsDialog({ order, isOpen, onClose, onUpdateOrder }: OrderDeta
             </div>
 
             {/* Total */}
-            <div className="bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 rounded-xl p-4">
+            <div className="bg-linear-to-r from-primary/10 to-primary/5 border border-primary/20 rounded-xl p-4">
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
                   <h3 className="text-lg font-semibold">Totaal</h3>
@@ -319,7 +319,7 @@ function OrderCard({ order, asHandle, onOrderClick, ...props }: OrderCardProps) 
       onClick={handleCardClick}
     >
       {/* Header with Time and Order ID */}
-      <div className="bg-gradient-to-r from-green-200 to-white-50 px-4 py-3 border-b border-gray-200">
+      <div className="bg-linear-to-r from-green-200 to-white-50 px-4 py-3 border-b border-gray-200">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-blue-600" />
