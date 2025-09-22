@@ -10,7 +10,7 @@ import { cn } from '@/utilities/ui'
 
 export function DatePicker({ date, setDate }: { date: Date; setDate: (date: Date) => void }) {
   return (
-    <>
+    <div className="twp">
       <Popover>
         <PopoverTrigger asChild>
           <Button
@@ -29,6 +29,6 @@ export function DatePicker({ date, setDate }: { date: Date; setDate: (date: Date
         </PopoverContent>
       </Popover>
       <Button>Ugly button, where is the styling?</Button>
-    </>
+    </div>
   )
 }

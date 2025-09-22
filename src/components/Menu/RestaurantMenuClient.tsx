@@ -121,7 +121,7 @@ export const RestaurantMenuClient = ({ categories }: RestaurantMenuClientProps) 
     <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
       <ScrollArea ref={scrollAreaRef}>
         <Tabs value={activeTab} onValueChange={scrollToSection}>
-          <TabsList ref={tabsListRef} variant="line" className="w-full justify-start">
+          <TabsList ref={tabsListRef} className="w-full justify-start">
             {categories?.map((category) => (
               <TabsTrigger key={category.slug} value={category.slug ?? ''} className="py-4">
                 {category.title}
