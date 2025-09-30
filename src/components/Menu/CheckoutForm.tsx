@@ -1,15 +1,24 @@
 'use client'
 
-import { createOrder, type CreateOrderData } from '@/actions/order-actions'
 import { useCartStorage } from '@/hooks/useCartStorage'
-import { formatToEuro } from '@/utilities/formatToEuro'
-import { useEffect, useState } from 'react'
-import { Button } from '../ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
-import { Input } from '../ui/input'
-import { Label } from '../ui/label'
-import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
-import { Separator } from '../ui/separator'
+import { useOrderForm } from '@/hooks/useOrderForm'
+import { calculateDeliveryCosts, calculateFinalTotal, calculateSubtotal } from '@/utilities'
+import { useState } from 'react'
+import {
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  FormField,
+  GooglePlacesAutocomplete,
+  Input,
+  Label,
+  PriceDisplay,
+  RadioGroup,
+  RadioGroupItem,
+  Separator,
+} from '..'
 import { OrderItem } from './MenuItemModal'
 
 interface CheckoutFormProps {
@@ -18,91 +27,56 @@ interface CheckoutFormProps {
 }
 
 export const CheckoutForm = ({ cartItems, onClose }: CheckoutFormProps) => {
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const { customerInfo, updateCustomerInfo, clearAll } = useCartStorage()
+  const { submitOrder, isSubmitting, error, isSuccess, reset } = useOrderForm()
 
   const [formData, setFormData] = useState({
     name: customerInfo.name,
     email: customerInfo.email,
     phone: customerInfo.phone,
     address: customerInfo.address,
+    houseNumber: customerInfo.houseNumber,
     city: customerInfo.city,
     postalCode: customerInfo.postalCode,
     deliveryMethod: customerInfo.deliveryMethod,
     paymentMethod: customerInfo.paymentMethod,
   })
 
-  // Update form data when customer info changes
-  useEffect(() => {
-    setFormData({
-      name: customerInfo.name,
-      email: customerInfo.email,
-      phone: customerInfo.phone,
-      address: customerInfo.address,
-      city: customerInfo.city,
-      postalCode: customerInfo.postalCode,
-      deliveryMethod: customerInfo.deliveryMethod,
-      paymentMethod: customerInfo.paymentMethod,
-    })
-  }, [customerInfo])
-
-  // Update localStorage when form data changes
+  // Update form data and localStorage in one function
   const updateFormData = (updates: Partial<typeof formData>) => {
     const newFormData = { ...formData, ...updates }
     setFormData(newFormData)
     updateCustomerInfo(newFormData)
   }
 
-  const calculateSubtotal = (): number => {
-    return cartItems.reduce((total, item) => {
-      let itemTotal = item.menuItem.price * item.quantity
-
-      Object.values(item.keuzemenuSelections).forEach((selectedOption) => {
-        if (Array.isArray(selectedOption)) {
-          selectedOption.forEach((option: any) => {
-            itemTotal += (option.price || 0) * item.quantity
-          })
-        } else {
-          itemTotal += (selectedOption.price || 0) * item.quantity
-        }
-      })
-
-      return total + itemTotal
-    }, 0)
-  }
-
-  const deliveryCosts = formData.deliveryMethod === 'delivery' ? 2.5 : 0
-  const subtotal = calculateSubtotal()
-  const total = subtotal + deliveryCosts
+  const subtotal = calculateSubtotal(cartItems)
+  const deliveryCosts = calculateDeliveryCosts(formData.deliveryMethod)
+  const total = calculateFinalTotal(cartItems, formData.deliveryMethod)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsSubmitting(true)
 
     try {
-      const orderData: CreateOrderData = {
+      await submitOrder(
         cartItems,
-        customerInfo: {
+        {
           name: formData.name,
           email: formData.email,
           phone: formData.phone,
           address: formData.address,
+          houseNumber: formData.houseNumber,
           city: formData.city,
           postalCode: formData.postalCode,
         },
-        deliveryMethod: formData.deliveryMethod,
-        paymentMethod: formData.paymentMethod,
-      }
-
-      await createOrder(orderData)
+        formData.deliveryMethod,
+        formData.paymentMethod,
+      )
 
       // Clear cart and customer info after successful order
       clearAll()
     } catch (error) {
       console.error('Order submission failed:', error)
       alert('Er is een fout opgetreden. Neem telefonisch contact met ons op.')
-    } finally {
-      setIsSubmitting(false)
     }
   }
 
@@ -115,17 +89,15 @@ export const CheckoutForm = ({ cartItems, onClose }: CheckoutFormProps) => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Naam *</Label>
+            <FormField label="Naam" htmlFor="name" required>
               <Input
                 id="name"
                 value={formData.name}
                 onChange={(e) => updateFormData({ name: e.target.value })}
                 required
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">E-mail *</Label>
+            </FormField>
+            <FormField label="E-mail" htmlFor="email" required>
               <Input
                 id="email"
                 type="email"
@@ -133,10 +105,9 @@ export const CheckoutForm = ({ cartItems, onClose }: CheckoutFormProps) => {
                 onChange={(e) => updateFormData({ email: e.target.value })}
                 required
               />
-            </div>
+            </FormField>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="phone">Telefoonnummer *</Label>
+          <FormField label="Telefoonnummer" htmlFor="phone" required>
             <Input
               id="phone"
               type="tel"
@@ -144,7 +115,7 @@ export const CheckoutForm = ({ cartItems, onClose }: CheckoutFormProps) => {
               onChange={(e) => updateFormData({ phone: e.target.value })}
               required
             />
-          </div>
+          </FormField>
         </CardContent>
       </Card>
 
@@ -175,37 +146,19 @@ export const CheckoutForm = ({ cartItems, onClose }: CheckoutFormProps) => {
 
           {formData.deliveryMethod === 'delivery' && (
             <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="address">Adres *</Label>
-                <Input
-                  id="address"
-                  value={formData.address}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, address: e.target.value }))}
-                  required
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="postalCode">Postcode *</Label>
-                  <Input
-                    id="postalCode"
-                    value={formData.postalCode}
-                    onChange={(e) =>
-                      setFormData((prev) => ({ ...prev, postalCode: e.target.value }))
-                    }
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="city">Plaats *</Label>
-                  <Input
-                    id="city"
-                    value={formData.city}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, city: e.target.value }))}
-                    required
-                  />
-                </div>
-              </div>
+              <GooglePlacesAutocomplete
+                value={formData.address}
+                onChange={(value) => {
+                  updateFormData({
+                    address: value.address,
+                    houseNumber: value.houseNumber,
+                    postalCode: value.postalCode,
+                    city: value.city,
+                  })
+                }}
+                placeholder="Voer je adres in..."
+                required
+              />
             </div>
           )}
         </CardContent>
@@ -252,7 +205,7 @@ export const CheckoutForm = ({ cartItems, onClose }: CheckoutFormProps) => {
                 <span>
                   {item.quantity}x {item.menuItem.title}
                 </span>
-                <span>{formatToEuro(item.menuItem.price * item.quantity)}</span>
+                <PriceDisplay price={item.menuItem.price * item.quantity} />
               </div>
               <div className="flex flex-col justify-between text-sm text-muted-foreground ml-3 italic">
                 {item.customWishes && <span>• {item.customWishes}</span>}
@@ -260,7 +213,7 @@ export const CheckoutForm = ({ cartItems, onClose }: CheckoutFormProps) => {
                   <div key={selection.questionId}>
                     <span>• {selection.answer}</span>
                     {selection.price && selection.price > 0 && (
-                      <span>{formatToEuro(selection.price || 0)}</span>
+                      <PriceDisplay price={selection.price || 0} size="sm" />
                     )}
                   </div>
                 ))}
@@ -270,16 +223,16 @@ export const CheckoutForm = ({ cartItems, onClose }: CheckoutFormProps) => {
           <Separator />
           <div className="flex justify-between">
             <span>Subtotaal</span>
-            <span>{formatToEuro(subtotal)}</span>
+            <PriceDisplay price={subtotal} />
           </div>
           <div className="flex justify-between">
             <span>Bezorgkosten</span>
-            <span>{formatToEuro(deliveryCosts)}</span>
+            <PriceDisplay price={deliveryCosts} />
           </div>
           <Separator />
           <div className="flex justify-between font-semibold text-lg">
             <span>Totaal</span>
-            <span>{formatToEuro(total)}</span>
+            <PriceDisplay price={total} size="lg" />
           </div>
         </CardContent>
       </Card>

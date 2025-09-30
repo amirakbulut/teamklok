@@ -1,30 +1,23 @@
-import type { MenuItem } from '@/payload-types'
-import { formatToEuro } from '@/utilities/formatToEuro'
+import {
+  calculateItemPrice,
+  calculateTotalPrice,
+  getDeliveryEstimate,
+  getTotalItems,
+} from '@/utilities'
 import { Minus, Plus, ShoppingCart, Trash2, X } from 'lucide-react'
 import { useState } from 'react'
-import { Button } from '../ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
-import { ScrollArea } from '../ui/scroll-area'
-import { Separator } from '../ui/separator'
+import {
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  PriceDisplay,
+  ScrollArea,
+  Separator,
+} from '..'
 import { CheckoutForm } from './CheckoutForm'
-
-interface KeuzemenuOption {
-  label: string
-  price?: number | null
-  id?: string | null
-}
-
-interface OrderItem {
-  menuItem: MenuItem
-  quantity: number
-  customWishes: string
-  keuzemenuSelections: {
-    questionId: string
-    question: string
-    answer: string | string[]
-    price?: number | null
-  }[]
-}
+import { OrderItem } from './MenuItemModal'
 
 interface CartDrawerProps {
   isOpen: boolean
@@ -46,31 +39,6 @@ export const CartDrawer = ({
   const [showCheckout, setShowCheckout] = useState(false)
   const [removingItem, setRemovingItem] = useState<number | null>(null)
 
-  const calculateItemPrice = (item: OrderItem): number => {
-    let total = item.menuItem.price * item.quantity
-
-    // Add keuzemenu option prices
-    item.keuzemenuSelections.forEach((selection) => {
-      console.log(selection)
-      if (selection.price) {
-        total +=
-          selection.price *
-          (Array.isArray(selection.answer) ? selection.answer.length : 1) *
-          item.quantity
-      }
-    })
-
-    return total
-  }
-
-  const calculateTotalPrice = (): number => {
-    return cartItems.reduce((total, item) => total + calculateItemPrice(item), 0)
-  }
-
-  const getTotalItems = (): number => {
-    return cartItems.reduce((total, item) => total + item.quantity, 0)
-  }
-
   const handleRemoveItem = async (index: number) => {
     setRemovingItem(index)
     // Add a small delay for visual feedback
@@ -78,14 +46,6 @@ export const CartDrawer = ({
       onRemoveItem(index)
       setRemovingItem(null)
     }, 150)
-  }
-
-  const getDeliveryEstimate = (): string => {
-    const totalItems = getTotalItems()
-    if (totalItems === 0) return ''
-    if (totalItems <= 2) return '15-20 min'
-    if (totalItems <= 5) return '20-25 min'
-    return '25-30 min'
   }
 
   return (
@@ -153,9 +113,7 @@ export const CartDrawer = ({
                           </CardTitle>
                         </div>
                         <div className="flex items-center gap-1.5 ml-2">
-                          <span className="text-base font-medium ">
-                            {formatToEuro(item.menuItem.price * item.quantity)}
-                          </span>
+                          <PriceDisplay price={item.menuItem.price * item.quantity} />
                         </div>
                       </div>
                     </CardHeader>
@@ -176,12 +134,11 @@ export const CartDrawer = ({
                                           <div key={answerIndex}>
                                             <span className="flex items-center justify-between gap-1 text-sm">
                                               <span>{answer}</span>
-                                              <span className="text-sm">
-                                                {'+ ' +
-                                                  formatToEuro(
-                                                    selection?.price || 0 * item.quantity,
-                                                  )}
-                                              </span>
+                                              <PriceDisplay
+                                                price={selection?.price || 0 * item.quantity}
+                                                size="sm"
+                                                className="text-sm"
+                                              />
                                             </span>
                                           </div>
                                         ))}
@@ -199,9 +156,11 @@ export const CartDrawer = ({
                                       <div className="flex items-center justify-between">
                                         <p className="text-sm">{selection.answer}</p>
                                         {selection.price && selection.price > 0 && (
-                                          <span className="text-sm">
-                                            + {formatToEuro(selection.price * item.quantity)}
-                                          </span>
+                                          <PriceDisplay
+                                            price={selection.price * item.quantity}
+                                            size="sm"
+                                            className="text-sm"
+                                          />
                                         )}
                                       </div>
                                     </div>
@@ -261,9 +220,7 @@ export const CartDrawer = ({
                           </Button>
                         </div>
                         <div className="text-right">
-                          <div className="text-base font-semibold ">
-                            {formatToEuro(calculateItemPrice(item))}
-                          </div>
+                          <PriceDisplay price={calculateItemPrice(item)} />
                         </div>
                       </div>
                     </CardContent>
@@ -279,9 +236,7 @@ export const CartDrawer = ({
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-base font-semibold">Subtotaal</span>
-                  <span className="text-base font-semibold">
-                    {formatToEuro(calculateTotalPrice())}
-                  </span>
+                  <PriceDisplay price={calculateTotalPrice(cartItems)} />
                 </div>
 
                 <Separator />
@@ -290,14 +245,18 @@ export const CartDrawer = ({
                   <div>
                     <span className="text-lg font-semibold">Totaal</span>
                     <p className="text-sm text-muted-foreground">
-                      {getTotalItems()} {getTotalItems() === 1 ? 'item' : 'items'}
-                      {getDeliveryEstimate() && (
-                        <span className="ml-1">• {getDeliveryEstimate()}</span>
+                      {getTotalItems(cartItems)} {getTotalItems(cartItems) === 1 ? 'item' : 'items'}
+                      {getDeliveryEstimate(cartItems) && (
+                        <span className="ml-1">• {getDeliveryEstimate(cartItems)}</span>
                       )}
                     </p>
                   </div>
                   <div className="text-right">
-                    <div className="text-xl font-bold ">{formatToEuro(calculateTotalPrice())}</div>
+                    <PriceDisplay
+                      price={calculateTotalPrice(cartItems)}
+                      size="lg"
+                      className="text-xl font-bold"
+                    />
                   </div>
                 </div>
               </div>

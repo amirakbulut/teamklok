@@ -1,6 +1,6 @@
-import { cn } from '@/utilities/ui'
-import React from 'react'
 import RichText from '@/components/RichText'
+import { cn } from '@/utilities'
+import React from 'react'
 
 import type { ContentBlock as ContentBlockProps } from '@/payload-types'
 

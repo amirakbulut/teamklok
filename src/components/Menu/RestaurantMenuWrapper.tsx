@@ -2,30 +2,18 @@
 
 import { useCartStorage } from '@/hooks/useCartStorage'
 import type { MenuCategory, MenuItem } from '@/payload-types'
-import { formatToEuro } from '@/utilities/formatToEuro'
+import { formatToEuro } from '@/utilities'
 import { ShoppingCart } from 'lucide-react'
 import { useState } from 'react'
+import { MenuSearch } from '../MenuSearch'
 import { Button } from '../ui/button'
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card'
 import { CartDrawer } from './CartDrawer'
-import { MenuItemModal } from './MenuItemModal'
+import { MenuItemModal, OrderItem } from './MenuItemModal'
 import { RestaurantMenuClient } from './RestaurantMenuClient'
 
 interface RestaurantMenuWrapperProps {
   categories: MenuCategory[]
-}
-
-interface KeuzemenuOption {
-  label: string
-  price?: number | null
-  id?: string | null
-}
-
-interface OrderItem {
-  menuItem: MenuItem
-  quantity: number
-  customWishes: string
-  keuzemenuSelections: Record<string, KeuzemenuOption | KeuzemenuOption[]>
 }
 
 export const RestaurantMenuWrapper = ({ categories }: RestaurantMenuWrapperProps) => {
@@ -69,6 +57,8 @@ export const RestaurantMenuWrapper = ({ categories }: RestaurantMenuWrapperProps
   return (
     <>
       <div className="space-y-8">
+        <MenuSearch />
+
         {/* Sticky tabs */}
         <RestaurantMenuClient categories={categories} />
 
@@ -117,7 +107,7 @@ export const RestaurantMenuWrapper = ({ categories }: RestaurantMenuWrapperProps
           <ShoppingCart className="h-5 w-5 mr-2" />
           Bestelling
           {getTotalItems() > 0 && (
-            <span className="ml-2 bg-white text-primary text-xs px-2 py-1 rounded-full">
+            <span className="ml-2 bg-background text-primary text-xs px-2 py-1 rounded-full">
               {getTotalItems()}
             </span>
           )}

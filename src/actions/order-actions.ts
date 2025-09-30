@@ -13,11 +13,44 @@ export interface CreateOrderData {
     email: string
     phone: string
     address: string
+    houseNumber: string
     city: string
     postalCode: string
   }
   deliveryMethod: 'delivery' | 'pickup'
   paymentMethod: 'online' | 'cash' | 'cash_pin'
+}
+
+async function getDeliveryDuration(postalCode: string): Promise<number> {
+  try {
+    const payload = await getPayload({ config })
+
+    const bezorggebieden = await payload.find({
+      collection: 'bezorg-gebieden',
+      where: {
+        zipCode: {
+          equals: postalCode,
+        },
+        active: {
+          equals: true,
+        },
+      },
+      limit: 1,
+    })
+
+    if (bezorggebieden.docs.length > 0) {
+      const deliveryTime = bezorggebieden.docs[0].deliveryTime
+      if (deliveryTime) {
+        return deliveryTime
+      }
+    }
+
+    // Fallback to default delivery duration (37.5 minutes = 30-45 min range)
+    return 45
+  } catch (error) {
+    console.error('Failed to fetch delivery duration:', error)
+    return 45
+  }
 }
 
 export async function createOrder(data: CreateOrderData) {
@@ -45,6 +78,12 @@ export async function createOrder(data: CreateOrderData) {
     const deliveryCosts = data.deliveryMethod === 'delivery' ? 2.5 : 0
     const orderTotal = subtotal + deliveryCosts
 
+    // Get delivery duration based on postal code
+    const deliveryDuration =
+      data.deliveryMethod === 'delivery'
+        ? await getDeliveryDuration(data.customerInfo.postalCode)
+        : 45
+
     // Transform cart items to order items format
     const orderItems = data.cartItems.map((item) => ({
       menuItem: item.menuItem.id,
@@ -64,20 +103,25 @@ export async function createOrder(data: CreateOrderData) {
       ],
     }))
 
+    const deliveryAddress =
+      data.deliveryMethod === 'delivery'
+        ? `${data.customerInfo.address} ${data.customerInfo.houseNumber}, ${data.customerInfo.postalCode} ${data.customerInfo.city}`
+        : 'Afhalen'
+
     // Create order in database
     const order = await payload.create({
       collection: 'orders',
       data: {
         orderId,
         orderDate: new Date().toISOString(),
+        customerName: data.customerInfo.name,
+        customerEmail: data.customerInfo.email,
+        customerPhone: data.customerInfo.phone,
         orderItems,
         orderStatus: 'open',
         orderTotal,
-        deliveryAddress:
-          data.deliveryMethod === 'delivery'
-            ? `${data.customerInfo.address}, ${data.customerInfo.postalCode} ${data.customerInfo.city}`
-            : 'Afhalen',
-        deliveryDuration: '30-45 min',
+        deliveryAddress,
+        deliveryDuration,
         deliveryCosts,
         deliveryMethod: data.deliveryMethod,
         paymentMethod: data.paymentMethod,

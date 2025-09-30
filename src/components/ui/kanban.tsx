@@ -1,6 +1,6 @@
 'use client'
 
-import { cn } from '@/utilities/ui'
+import { cn } from '@/utilities'
 import {
   defaultDropAnimation,
   defaultDropAnimationSideEffects,
@@ -100,6 +100,8 @@ export interface KanbanRootProps<T> {
   children: React.ReactNode
   className?: string
   onMove?: (event: KanbanMoveEvent) => void
+  onDragStart?: (event: DragStartEvent) => void
+  onDragEnd?: (event: DragEndEvent) => void
 }
 
 function Kanban<T>({
@@ -109,6 +111,8 @@ function Kanban<T>({
   children,
   className,
   onMove,
+  onDragStart: onDragStartProp,
+  onDragEnd: onDragEndProp,
 }: KanbanRootProps<T>) {
   const columns = value
   const setColumns = onValueChange
@@ -140,9 +144,13 @@ function Kanban<T>({
     [columns, columnIds, getItemValue, isColumn],
   )
 
-  const handleDragStart = React.useCallback((event: DragStartEvent) => {
-    setActiveId(event.active.id)
-  }, [])
+  const handleDragStart = React.useCallback(
+    (event: DragStartEvent) => {
+      setActiveId(event.active.id)
+      onDragStartProp?.(event)
+    },
+    [onDragStartProp],
+  )
 
   const handleDragOver = React.useCallback(
     (event: DragOverEvent) => {
@@ -184,13 +192,16 @@ function Kanban<T>({
         [overContainer]: newOverItems,
       })
     },
-    [findContainer, getItemValue, isColumn, setColumns, columns, onMove],
+    [findContainer, getItemValue, isColumn, setColumns, columns, onMove, onDragEndProp],
   )
 
   const handleDragEnd = React.useCallback(
     (event: DragEndEvent) => {
       const { active, over } = event
       setActiveId(null)
+
+      // Call the external onDragEnd callback first
+      onDragEndProp?.(event)
 
       if (!over) return
 

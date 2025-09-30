@@ -2,16 +2,13 @@ import React from 'react'
 
 import { Button } from '@/components/ui/button'
 import type { HeroBlock as HeroBlockProps } from '@/payload-types'
-import { cn } from '@/utilities/ui'
-import Image from 'next/image'
+import { cn } from '@/utilities'
 import Link from 'next/link'
 
 export const HeroBlock: React.FC<HeroBlockProps> = ({ title, description, links }) => {
   return (
     <div className="container">
       <div className="flex flex-col items-center justify-center">
-        <Image src="/media/logo.svg" alt="Logo" width={100} height={100} className="w-100 h-100" />
-
         <h1 className="text-4xl font-bold">{title}</h1>
         <p className="text-lg">{description}</p>
 

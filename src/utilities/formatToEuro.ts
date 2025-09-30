@@ -1,3 +1,6 @@
 export const formatToEuro = (price: number) => {
-  return '€' + price.toFixed(2)
+  return new Intl.NumberFormat('nl-NL', {
+    style: 'currency',
+    currency: 'EUR',
+  }).format(price)
 }

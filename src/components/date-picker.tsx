@@ -6,7 +6,7 @@ import { Calendar as CalendarIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { cn } from '@/utilities/ui'
+import { cn } from '@/utilities'
 
 export function DatePicker({ date, setDate }: { date: Date; setDate: (date: Date) => void }) {
   return (
@@ -16,7 +16,7 @@ export function DatePicker({ date, setDate }: { date: Date; setDate: (date: Date
           <Button
             variant="outline"
             className={cn(
-              'w-[280px] justify-start text-left font-normal',
+              'w-[280px] justify-start text-left font-normal hover:cursor-pointer',
               !date && 'text-muted-foreground',
             )}
           >
@@ -28,7 +28,6 @@ export function DatePicker({ date, setDate }: { date: Date; setDate: (date: Date
           <Calendar mode="single" selected={date} onSelect={setDate} required />
         </PopoverContent>
       </Popover>
-      <Button>Ugly button, where is the styling?</Button>
     </div>
   )
 }

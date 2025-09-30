@@ -1,5 +1,5 @@
 'use client'
-import { cn } from '@/utilities/ui'
+import { cn } from '@/utilities'
 import useClickableCard from '@/utilities/useClickableCard'
 import Link from 'next/link'
 import React, { Fragment } from 'react'

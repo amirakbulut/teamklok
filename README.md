@@ -60,6 +60,21 @@ git clone -n --depth=1 --filter=tree:0 https://github.com/payloadcms/payload my-
 
 That's it! Changes made in `./src` will be reflected in your app. Follow the on-screen instructions to login and create your first admin user. Then check out [Production](#production) once you're ready to build and serve your app, and [Deployment](#deployment) when you're ready to go live.
 
+### Google Maps API Configuration
+
+This template includes Google Places autocomplete functionality for address input in the checkout form. To enable this feature:
+
+1. Get a Google Maps API key from the [Google Cloud Console](https://console.cloud.google.com/google/maps-apis)
+2. Enable the following APIs:
+   - Places API
+   - Maps JavaScript API
+3. Add your API key to your environment variables:
+   ```
+   NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your_google_maps_api_key_here
+   ```
+
+The autocomplete is restricted to Netherlands addresses (`country: 'nl'`) and will automatically populate the address, postal code, and city fields when a user selects an address from the suggestions.
+
 ## How it works
 
 The Payload config is tailored specifically to the needs of most websites. It is pre-configured in the following ways:

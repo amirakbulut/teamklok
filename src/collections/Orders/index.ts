@@ -25,12 +25,21 @@ export const Orders: CollectionConfig = {
         },
       },
     },
-    // {
-    //   name: 'customer',
-    //   type: 'relationship',
-    //   relationTo: 'users',
-    //   required: true,
-    // },
+    {
+      name: 'customerName',
+      type: 'text',
+      required: true,
+    },
+    {
+      name: 'customerEmail',
+      type: 'email',
+      required: true,
+    },
+    {
+      name: 'customerPhone',
+      type: 'text',
+      required: true,
+    },
     {
       name: 'orderItems',
       type: 'array',
@@ -79,7 +88,7 @@ export const Orders: CollectionConfig = {
           value: 'kitchen',
         },
         {
-          label: 'Afgehaald',
+          label: 'Afgerond',
           value: 'delivered',
         },
         {
@@ -100,7 +109,7 @@ export const Orders: CollectionConfig = {
     },
     {
       name: 'deliveryDuration',
-      type: 'text',
+      type: 'number',
       required: true,
     },
     {

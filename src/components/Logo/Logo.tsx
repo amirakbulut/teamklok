@@ -1,5 +1,4 @@
 import clsx from 'clsx'
-import React from 'react'
 
 interface Props {
   className?: string
@@ -16,14 +15,14 @@ export const Logo = (props: Props) => {
   return (
     /* eslint-disable @next/next/no-img-element */
     <img
-      alt="Payload Logo"
-      width={193}
-      height={34}
+      alt="La Pizza Logo"
+      width={150}
+      height={150}
       loading={loading}
       fetchPriority={priority}
       decoding="async"
-      className={clsx('max-w-37.5 w-full h-[34px]', className)}
-      src="https://raw.githubusercontent.com/payloadcms/payload/main/packages/ui/src/assets/payload-logo-light.svg"
+      className={clsx('max-w-50 w-full', className)}
+      src="/media/logo.svg"
     />
   )
 }

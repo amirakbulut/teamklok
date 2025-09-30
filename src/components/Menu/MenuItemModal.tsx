@@ -1,23 +1,30 @@
 'use client'
 
 import type { MenuItem } from '@/payload-types'
-import { formatToEuro } from '@/utilities/formatToEuro'
+import { formatToEuro } from '@/utilities'
 import { useState } from 'react'
-import { Button } from '../ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
-import { Checkbox } from '../ui/checkbox'
 import {
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Checkbox,
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '../ui/dialog'
-import { Input } from '../ui/input'
-import { Label } from '../ui/label'
-import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
-import { Textarea } from '../ui/textarea'
+  FormField,
+  Input,
+  Label,
+  PriceDisplay,
+  QuantitySelector,
+  RadioGroup,
+  RadioGroupItem,
+  Textarea,
+} from '..'
 
 interface MenuItemModalProps {
   item: MenuItem | null
@@ -256,30 +263,7 @@ export const MenuItemModal = ({ item, isOpen, onClose, onAddToCart }: MenuItemMo
 
         <div className="space-y-6">
           {/* Quantity Selector */}
-          <div className="space-y-2">
-            <Label htmlFor="quantity">Aantal</Label>
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                disabled={quantity <= 1}
-              >
-                -
-              </Button>
-              <Input
-                id="quantity"
-                type="number"
-                min="1"
-                value={quantity}
-                onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                className="w-20 text-center"
-              />
-              <Button variant="outline" size="sm" onClick={() => setQuantity(quantity + 1)}>
-                +
-              </Button>
-            </div>
-          </div>
+          <QuantitySelector value={quantity} onChange={setQuantity} min={1} />
 
           {/* Keuzemenu Questions */}
           {keuzemenuQuestions.map((question) => (
@@ -383,8 +367,7 @@ export const MenuItemModal = ({ item, isOpen, onClose, onAddToCart }: MenuItemMo
           ))}
 
           {/* Custom Wishes */}
-          <div className="space-y-2">
-            <Label htmlFor="customWishes">Speciale wensen (optioneel)</Label>
+          <FormField label="Speciale wensen (optioneel)" htmlFor="customWishes">
             <Textarea
               id="customWishes"
               placeholder="Bijvoorbeeld: zonder ui, extra pittig, etc."
@@ -392,7 +375,7 @@ export const MenuItemModal = ({ item, isOpen, onClose, onAddToCart }: MenuItemMo
               onChange={(e) => setCustomWishes(e.target.value)}
               rows={3}
             />
-          </div>
+          </FormField>
 
           {/* Price Summary */}
           <Card>
@@ -404,7 +387,7 @@ export const MenuItemModal = ({ item, isOpen, onClose, onAddToCart }: MenuItemMo
                 <span>
                   {item.title} × {quantity}
                 </span>
-                <span>{formatToEuro(item.price * quantity)}</span>
+                <PriceDisplay price={item.price * quantity} />
               </div>
               {Object.entries(keuzemenuSelections).map(([questionId, selectedOption]) => {
                 if (Array.isArray(selectedOption)) {
@@ -417,7 +400,11 @@ export const MenuItemModal = ({ item, isOpen, onClose, onAddToCart }: MenuItemMo
                       <span>
                         {option.label} × {quantity}
                       </span>
-                      <span>{formatToEuro((option.price || 0) * quantity)}</span>
+                      <PriceDisplay
+                        price={(option.price || 0) * quantity}
+                        size="sm"
+                        variant="muted"
+                      />
                     </div>
                   ))
                 } else {
@@ -430,14 +417,18 @@ export const MenuItemModal = ({ item, isOpen, onClose, onAddToCart }: MenuItemMo
                       <span>
                         {selectedOption.answer} × {quantity}
                       </span>
-                      <span>{formatToEuro((selectedOption.price || 0) * quantity)}</span>
+                      <PriceDisplay
+                        price={(selectedOption.price || 0) * quantity}
+                        size="sm"
+                        variant="muted"
+                      />
                     </div>
                   )
                 }
               })}
               <div className="border-t pt-2 flex justify-between font-semibold text-lg">
                 <span>Totaal</span>
-                <span>{formatToEuro(calculateTotalPrice())}</span>
+                <PriceDisplay price={calculateTotalPrice()} size="lg" />
               </div>
             </CardContent>
           </Card>

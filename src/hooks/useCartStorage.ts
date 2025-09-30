@@ -1,31 +1,14 @@
 'use client'
 
-import type { MenuItem } from '@/payload-types'
+import { OrderItem } from '@/components/Menu/MenuItemModal'
 import { useEffect, useState } from 'react'
-
-interface KeuzemenuOption {
-  label: string
-  price?: number | null
-  id?: string | null
-}
-
-interface OrderItem {
-  menuItem: MenuItem
-  quantity: number
-  customWishes: string
-  keuzemenuSelections: {
-    questionId: string
-    question: string
-    answer: string | string[]
-    price?: number | null
-  }[]
-}
 
 interface CustomerInfo {
   name: string
   email: string
   phone: string
   address: string
+  houseNumber: string
   city: string
   postalCode: string
   deliveryMethod: 'delivery' | 'pickup'
@@ -42,16 +25,13 @@ export const useCartStorage = () => {
     email: '',
     phone: '',
     address: '',
+    houseNumber: '',
     city: '',
     postalCode: '',
     deliveryMethod: 'delivery',
     paymentMethod: 'online',
   })
   const [isLoaded, setIsLoaded] = useState(false)
-  // watch for changes in the cart items
-  useEffect(() => {
-    console.log('cartItems', cartItems)
-  }, [cartItems])
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -175,6 +155,7 @@ export const useCartStorage = () => {
       email: '',
       phone: '',
       address: '',
+      houseNumber: '',
       city: '',
       postalCode: '',
       deliveryMethod: 'delivery',
